@@ -3,8 +3,6 @@
 namespace fishvision\migrate\controllers;
 
 use Yii;
-use yii\db\Query;
-use yii\helpers\ArrayHelper;
 
 /**
  * Class MigrateController
