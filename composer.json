@@ -1,0 +1,21 @@
+{
+    "name": "fishvision/yii2-migrate",
+    "description": "Extended migration support",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alex Berriman",
+            "email": "alexb@fishvision.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "fishvision\\migrate\\": ""
+        }
+    }
+}
