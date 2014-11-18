@@ -34,14 +34,14 @@ to the require section of your application's `composer.json` file.
 ```
 Options
 -------
-| *Option*        | *Type*          | *Description*  |
+| Option        | Type          | Description  |
 | :-------------: |:-------------:| :------------|
-| **autoDiscover**  | bool | If true, the application will recursively look for additional migrations within the directories specified by `migrationPaths` |
-| **migrationPaths** | array |   An array of path aliases to recursively look under for additional migrations. |
+| `autoDiscover`  | ```bool``` | If true, the application will recursively look for additional migrations within the directories specified by `migrationPaths` |
+| `migrationPaths` | ```array``` |   An array of path aliases to recursively look under for additional migrations. |
 
 Usage
 -----
 ```
 ./yii migrate
 ```
-***Note***: extension does not make any changes to the default migration usage. It simply alters the paths in which to look for migrations.
+***Note***: extension does not make any changes to the default migration usage. It simply alters the paths in which to look for migrations. 
