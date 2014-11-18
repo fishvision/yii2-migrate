@@ -2,6 +2,15 @@ Yii2 Migrate
 ========================
 Extended database migration support for Yii2.
 
+Description
+-----------
+By default (as of `2.0.1`), Yii only looks in a single directory to apply/revert database migrations. You are able to override the directory to search in via the `--migrationPath` option, however, this is only useful in applying/reverting a small subset of migrations, and not an entire system as a whole. 
+
+####Use case
+A large system may contain a significant amount of individually maintained extensions/modules. If these individual packages interact with the database in any way, they may each contain their own set of database migrations. Moreover, different extensions/modules may require as dependencies additional packages, and the migrations for these packages need to be carefully applied in the order they were created. Currently, this would have to be completed manually by the developer, as Yii's native migration support can only look in one directory at a time. 
+
+This extension solves that problem, by allowing you to specify a range of directories in which the migration command should iterate through to attempt to locate migrations. In that way, systems with migrations in 100+ directories can be easily maintained by simply registering that directory.
+
 Installation
 ------------
 The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
@@ -33,16 +42,6 @@ to the require section of your application's `composer.json` file.
     ],
 ],
 ```
-
-Description
------------
-By default (as of `2.0.1`), Yii only looks in a single directory to apply/revert database migrations. You are able to override the directory to search in via the `--migrationPath` option, however, this is only useful in applying/reverting a small subset of migrations, and not an entire system as a whole. 
-
-####Use case
-A large system may contain a significant amount of individually maintained extensions/modules. If these individual packages interact with the database in any way, they may each contain their own set of database migrations. Moreover, different extensions/modules may require as dependencies additional packages, and the migrations for these packages need to be carefully applied in the order they were created. Currently, this would have to be completed manually by the developer, as Yii's native migration support can only look in one directory at a time. 
-
-This extension solves that problem, by allowing you to specify a range of directories in which the migration command should iterate through to attempt to locate migrations. In that way, systems with migrations in 100+ directories can be easily maintained by simply registering that directory.
-
 Options
 -------
 | Option        | Type          | Description  |
