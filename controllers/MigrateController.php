@@ -3,6 +3,8 @@
 namespace fishvision\migrate\controllers;
 
 use Yii;
+use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class MigrateController
@@ -173,5 +175,31 @@ class MigrateController extends \yii\console\controllers\MigrateController
             echo "*** failed to revert $class (time: " . sprintf("%.3f", $time) . "s)\n\n";
             return false;
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getMigrationHistory($limit)
+    {
+        if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
+            $this->createMigrationHistoryTable();
+        }
+        $query = new Query;
+        $rows = $query->select(['version', 'apply_time'])
+            ->from($this->migrationTable)
+            ->orderBy('version DESC')
+            ->limit($limit)
+            ->createCommand($this->db)
+            ->queryAll();
+        $history = ArrayHelper::map($rows, 'version', 'apply_time');
+        unset($history[self::BASE_MIGRATION]);
+
+        $pathHistory = [];
+        foreach ($history as $class => $timestamp) {
+            $pathHistory[$this->getPathFromClass($class)] = $timestamp;
+        }
+
+        return $pathHistory;
     }
 }
