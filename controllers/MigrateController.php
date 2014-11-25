@@ -64,6 +64,10 @@ class MigrateController extends \yii\console\controllers\MigrateController
         // Migrations already applied
         $applied = [];
         foreach ($this->getMigrationHistory(null) as $version => $time) {
+            if (strstr($version, '/') !== false) {
+                $parts = explode('/', $version);
+                $version = end($parts);
+            }
             $applied[substr($version, 1, 13)] = true;
         }
 
