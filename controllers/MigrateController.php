@@ -13,14 +13,19 @@ use yii\helpers\ArrayHelper;
 class MigrateController extends \yii\console\controllers\MigrateController
 {
     /**
-     * @var bool
+     * @var bool TRUE if migrations should be found in "migrationPaths"
      */
     public $autoDiscover = false;
 
     /**
-     * @var array
+     * @var array List of paths for migrations lookup. Aliases can be used.
      */
     public $migrationPaths = [];
+
+    /**
+     * @var bool TRUE if the migrations lookup should be recursive
+     */
+    public $recursiveDiscover = true;
 
     /**
      * @inheritdoc
@@ -97,12 +102,17 @@ class MigrateController extends \yii\console\controllers\MigrateController
 
         $migrations = [];
 
-        // Recursively iterate through each path
+        // Iterate through each path
         foreach ($paths as $path) {
-            $recursiveDirectory = new \RecursiveDirectoryIterator(Yii::getAlias($path));
-            $recursiveIterator = new \RecursiveIteratorIterator($recursiveDirectory);
-            $recursiveRegex = new \RegexIterator($recursiveIterator, '/^.*[\\\\\\/]migrations[\\\\\\/]m(\d{6}_\d{6})_.*?\.php$/i',
-                \RecursiveRegexIterator::GET_MATCH);
+            $migrationCandidateIterator = $this->recursiveDiscover
+                ? new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(Yii::getAlias($path)))
+                : new \FilesystemIterator(Yii::getAlias($path));
+
+            $recursiveRegex = new \RegexIterator(
+                $migrationCandidateIterator,
+                '~^.*[\/]m(\d{6}_\d{6})_.*?\.php$~i',
+                \RecursiveRegexIterator::GET_MATCH
+            );
 
             // Add to array which will be sortable by filename
             foreach ($recursiveRegex as $file) {
