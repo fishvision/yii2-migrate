@@ -138,7 +138,7 @@ class MigrateController extends \yii\console\controllers\MigrateController
         }
 
         require_once($file);
-        return new $class();
+        return new $class(['db' => $this->db]);
     }
 
     /**
