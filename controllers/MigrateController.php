@@ -13,6 +13,11 @@ use yii\helpers\ArrayHelper;
 class MigrateController extends \yii\console\controllers\MigrateController
 {
     /**
+     * @var bool|array
+     */
+    private $cachedMigrations = false;
+
+    /**
      * @var bool
      */
     public $autoDiscover = false;
@@ -89,6 +94,10 @@ class MigrateController extends \yii\console\controllers\MigrateController
      */
     private function getMigrationPaths()
     {
+        if ($this->cachedMigrations !== false) {
+            return $this->cachedMigrations;
+        }
+
         // Paths to look for
         $paths = [$this->migrationPath];
         if ($this->autoDiscover === true) {
@@ -118,6 +127,8 @@ class MigrateController extends \yii\console\controllers\MigrateController
             ksort($migrations);
         }
 
+        $this->cachedMigrations = $migrations;
+
         return $migrations;
     }
 
@@ -138,6 +149,7 @@ class MigrateController extends \yii\console\controllers\MigrateController
         }
 
         require_once($file);
+
         return new $class(['db' => $this->db]);
     }
 
@@ -173,10 +185,12 @@ class MigrateController extends \yii\console\controllers\MigrateController
             $this->removeMigrationHistory($class);
             $time = microtime(true) - $start;
             echo "*** reverted $class (time: " . sprintf("%.3f", $time) . "s)\n\n";
+
             return true;
         } else {
             $time = microtime(true) - $start;
             echo "*** failed to revert $class (time: " . sprintf("%.3f", $time) . "s)\n\n";
+
             return false;
         }
     }
