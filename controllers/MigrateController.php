@@ -110,11 +110,12 @@ class MigrateController extends \yii\console\controllers\MigrateController
         foreach ($paths as $path) {
             $recursiveDirectory = new \RecursiveDirectoryIterator(Yii::getAlias($path));
             $recursiveIterator = new \RecursiveIteratorIterator($recursiveDirectory);
-            $recursiveRegex = new \RegexIterator($recursiveIterator, '/^.*\/migrations\/m(\d{6}_\d{6})_.*?\.php$/i',
+            $recursiveRegex = new \RegexIterator($recursiveIterator, '/^.*[\\\\\\/]migrations[\\\\\\/]m(\d{6}_\d{6})_.*?\.php$/i',
                 \RecursiveRegexIterator::GET_MATCH);
 
             // Add to array which will be sortable by filename
             foreach ($recursiveRegex as $file) {
+                $file = str_replace('\\', '/', $file);
                 $fileParts = explode('/', $file[0]);
                 $filename = end($fileParts);
 
@@ -149,7 +150,7 @@ class MigrateController extends \yii\console\controllers\MigrateController
         }
 
         require_once($file);
-
+        
         return new $class(['db' => $this->db]);
     }
 
