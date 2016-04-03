@@ -1,4 +1,4 @@
-Yii2 Migrate
+Yii2 Migrate v1.0
 ========================
 Extended database migration support for Yii2.
 
