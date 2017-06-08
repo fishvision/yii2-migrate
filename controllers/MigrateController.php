@@ -2,6 +2,10 @@
 
 namespace fishvision\migrate\controllers;
 
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RecursiveRegexIterator;
+use RegexIterator;
 use Yii;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -108,27 +112,54 @@ class MigrateController extends \yii\console\controllers\MigrateController
 
         // Recursively iterate through each path
         foreach ($paths as $path) {
-            $recursiveDirectory = new \RecursiveDirectoryIterator(Yii::getAlias($path));
-            $recursiveIterator = new \RecursiveIteratorIterator($recursiveDirectory);
-            $recursiveRegex = new \RegexIterator($recursiveIterator, '/^.*[\\\\\\/]migrations[\\\\\\/]m(\d{6}_\d{6})_.*?\.php$/i',
-                \RecursiveRegexIterator::GET_MATCH);
-
-            // Add to array which will be sortable by filename
-            foreach ($recursiveRegex as $file) {
-                $file = str_replace('\\', '/', $file);
-                $fileParts = explode('/', $file[0]);
-                $filename = end($fileParts);
-
-                // Only add files not already applied
-                if (is_file($file[0])) {
-                    $migrations[$filename] = $file[0];
+            /* @var $path array|string */
+            if (is_array($path)) {
+                foreach ($path as $migrationPath) {
+                    /* @var $migrationPath string */
+                    $migrations = ArrayHelper::merge($migrations, $this->getMigrationsInPath($migrationPath));
                 }
+            } elseif (is_string($path)) {
+                $migrations = ArrayHelper::merge($migrations, $this->getMigrationsInPath($path));
             }
-
-            ksort($migrations);
         }
+        ksort($migrations);
 
         $this->cachedMigrations = $migrations;
+
+        return $migrations;
+    }
+
+    /**
+     * @param $path
+     * @return array
+     */
+    protected function getMigrationsInPath($path)
+    {
+        $migrations = [];
+
+        // Search recursively for migrations
+        $recursiveDirectory = new RecursiveDirectoryIterator(Yii::getAlias($path));
+        $recursiveIterator = new RecursiveIteratorIterator($recursiveDirectory);
+        $recursiveRegex = new RegexIterator(
+            $recursiveIterator,
+            '/^.*[\\\\\\/]migrations[\\\\\\/]m(\d{6}_\d{6})_.*?\.php$/i',
+            RecursiveRegexIterator::GET_MATCH
+        );
+
+        // Add to array which will be sortable by filename
+        foreach ($recursiveRegex as $file) {
+            /* @var $file string */
+            $file = str_replace('\\', '/', $file);
+            $fileParts = explode('/', $file[0]);
+            $filename = end($fileParts);
+
+            // Only add files not already applied
+            if (is_file($file[0])) {
+                $migrations[$filename] = $file[0];
+            }
+        }
+
+        ksort($migrations);
 
         return $migrations;
     }
@@ -150,7 +181,7 @@ class MigrateController extends \yii\console\controllers\MigrateController
         }
 
         require_once($file);
-        
+
         return new $class(['db' => $this->db]);
     }
 
